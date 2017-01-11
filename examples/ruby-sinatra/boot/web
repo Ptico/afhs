@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+
+sbin/unicorn --config-file "etc/unicorn/${RACK_ENV:-development}.rb"

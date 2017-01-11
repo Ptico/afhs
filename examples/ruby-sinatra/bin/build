@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+
+bundle install && sbin/sass --update app/assets/css:srv/css --cache-location var/cache/sass

@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Stolen from [shoreman](https://github.com/chrismytton/shoreman)
+
+set -eo pipefail
+[[ "$TRACE" ]] && set -x
+
+log() {
+  local index="$2"
+  local format="%s %s\t| %s"
+
+  while read -r data
+  do
+    printf "$format\n" "$(date +"%H:%M:%S")" "$1" "$data"
+  done
+}
+
+store_pid() {
+  pids="$pids $1"
+}
+
+start_command() {
+  bash -c "$1" 2>&1 | log "$2" "$3" &
+  pid="$(jobs -p %%)"
+  store_pid "$pid"
+}
+
+onexit() {
+  echo "SIGINT received"
+  echo "sending SIGTERM to all processes"
+  kill $pids
+  sleep 1
+}
+
+main() {
+  start_command "boot/web" "web" "1"
+  start_command "boot/cron" "cron" "2"
+
+  trap onexit INT TERM
+
+  wait $pids
+}
+
+main "$@"
